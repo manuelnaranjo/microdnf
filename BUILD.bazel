@@ -1,6 +1,26 @@
 package(default_visibility = ["//visibility:public"])
 
+SUPPORTED_PLATFORMS = [
+    "linux_amd64",
+    "linux_arm64",
+    "osx_amd64",
+    "osx_arm64",
+]
+
 alias(
     name = "microdnf",
     actual = "//dnf:microdnf",
+)
+
+[
+    alias(
+        name = "microdnf_" + platform,
+        actual = "//dnf:microdnf_" + platform,
+    )
+    for platform in SUPPORTED_PLATFORMS
+]
+
+alias(
+    name = "microdnf_all",
+    actual = "//dnf:microdnf_all",
 )
