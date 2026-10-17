@@ -4,7 +4,7 @@
     "strip_prefix": "libdnf-0.74.0",
     "overlay": {
         "BUILD.bazel": "sha256-eJYGJhclGz9wMbm11ZAuSLlR7TMHEFNEsdIJrt7jUQU=",
-        "MODULE.bazel": "sha256-u867CmD2/+HxJwTdlM7W9J3uVs9AByqy+LKVAG3GRDE=",
+        "MODULE.bazel": "sha256-Ma/hKUeQ4DezSL+tlXAL5Wn08L3dOTysthS2LbCbsEY=",
         "libdnf/config-64.h": "sha256-AaYvTD7gByn5TwtTvQ/d9SRjggFc3X3PDAG0O+MwRPk=",
         "libdnf/dnf-context.cpp": "sha256-PVtIr6G2p3q6eJIEUATV+DOgMdfskVW1biY32Fto364=",
         "libdnf/dnf-version.h": "sha256-PB7PFmfONojtK6z9rY5l3nBwiHpwl3+Oo9Fa19cRAVI=",

@@ -25,7 +25,6 @@ PLUGINS = [
     glib_compile_resources(
         name = "gresource_" + plugin,
         c_prefix = "dnf_command_" + plugin,
-        internal = True,
         out = "plugins/{}/dnf-command-{}.gresource.c".format(plugin, plugin),
         resources = ["plugins/{}/{}.plugin".format(plugin, plugin)],
         xml = "plugins/{}/dnf-command-{}.gresource.xml".format(plugin, plugin),
@@ -70,6 +69,7 @@ cc_binary(
         'SRCDIR=\\"dnf\\"',
     ],
     includes = ["."],
+    linkopts = ["-rdynamic"],
     deps = [
         "@glib//:gio",
         "@glib//:glib",

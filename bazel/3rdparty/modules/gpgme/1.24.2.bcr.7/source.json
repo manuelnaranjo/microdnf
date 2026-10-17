@@ -4,7 +4,7 @@
     "strip_prefix": "gpgme-1.24.2",
     "overlay": {
         "BUILD.bazel": "sha256-OX/lifIQ2wcxjrohffnwnNfHatwW0uhyYCwMHd0I4E8=",
-        "MODULE.bazel": "sha256-20oSsSKUJ0FsxGZuvaMJytnHfSKHBHfJoSXGEj2gr0c=",
+        "MODULE.bazel": "sha256-eTvYNTQEz8/NQbZoOV9SrWCkxpHZ5vuO7rkIb0QZETM=",
         "src/config.h": "sha256-cPvGuMjBKQwveWeydqenlviCtcgsie5bGjno+1k9h8I=",
         "src/gpgme.h": "sha256-nxSVuO8obcKGxgJhdanv1rLEejH5K8qrGe4GCrGrPOg="
     }

@@ -8,6 +8,8 @@ cc_library(
         "src/assuan-error.c",
         "src/assuan-handler.c",
         "src/assuan-inquire.c",
+        "src/assuan-io.c",
+        "src/funopen.c",
         "src/assuan-listen.c",
         "src/assuan-logging.c",
         "src/assuan-pipe-connect.c",
