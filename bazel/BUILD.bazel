@@ -1,0 +1,12 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["gresource.bzl"])
+
+platform(
+    name = "ubuntu24_04_amd64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    parents = ["@buildbuddy_toolchain//:platform_linux_x86_64"],
+)

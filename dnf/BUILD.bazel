@@ -1,0 +1,81 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//bazel:gresource.bzl", "glib_compile_resources")
+
+package(default_visibility = ["//visibility:public"])
+
+PLUGINS = [
+    "install",
+    "reinstall",
+    "remove",
+    "upgrade",
+    "swap",
+    "distrosync",
+    "repolist",
+    "repoquery",
+    "leaves",
+    "clean",
+    "download",
+    "makecache",
+    "module_enable",
+    "module_disable",
+    "module_reset",
+]
+
+[
+    glib_compile_resources(
+        name = "gresource_" + plugin,
+        c_prefix = "dnf_command_" + plugin,
+        internal = True,
+        out = "plugins/{}/dnf-command-{}.gresource.c".format(plugin, plugin),
+        resources = ["plugins/{}/{}.plugin".format(plugin, plugin)],
+        xml = "plugins/{}/dnf-command-{}.gresource.xml".format(plugin, plugin),
+    )
+    for plugin in PLUGINS
+]
+
+cc_binary(
+    name = "microdnf",
+    srcs = [
+        "dnf-command.c",
+        "dnf-command.h",
+        "dnf-main.c",
+        "dnf-utils.c",
+        "dnf-utils.h",
+    ] + [
+        "plugins/{}/dnf-command-{}.c".format(plugin, plugin)
+        for plugin in PLUGINS
+    ] + [
+        "plugins/{}/dnf-command-{}.h".format(plugin, plugin)
+        for plugin in PLUGINS
+    ] + [
+        ":gresource_" + plugin
+        for plugin in PLUGINS
+    ],
+    copts = [
+        "--std=gnu11",
+        "-fstrict-aliasing",
+        "-Wformat=2",
+        "-Wunused",
+        "-Wuninitialized",
+        "-Wstrict-prototypes",
+        "-Wmissing-prototypes",
+        "-Werror=implicit",
+        "-Werror=init-self",
+        "-Werror=main",
+    ],
+    defines = [
+        'PACKAGE_LIBDIR=\\"/usr/lib64/dnf\\"',
+        'PACKAGE_DATADIR=\\"/usr/share/dnf\\"',
+        'BUILDDIR=\\"dnf\\"',
+        'SRCDIR=\\"dnf\\"',
+    ],
+    includes = ["."],
+    deps = [
+        "@glib//:gio",
+        "@glib//:glib",
+        "@glib//:gobject",
+        "@libdnf//:libdnf",
+        "@libpeas//:libpeas",
+        "@smartcols//:smartcols",
+    ],
+)
