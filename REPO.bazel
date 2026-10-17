@@ -1,0 +1,1 @@
+ignore_directories(["bazel/3rdparty"])
