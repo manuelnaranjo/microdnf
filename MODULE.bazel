@@ -47,11 +47,11 @@ buildbuddy.platform(
 )
 use_repo(buildbuddy, "buildbuddy_toolchain")
 
-register_execution_platforms(
-    "//bazel:ubuntu24_04_amd64",
-    "@buildbuddy_toolchain//:platform_linux_x86_64",
-    dev_dependency = True,
-)
+#register_execution_platforms(
+#    "//bazel:ubuntu24_04_amd64",
+#    "@buildbuddy_toolchain//:platform_linux_x86_64",
+#    dev_dependency = True,
+#)
 
 # BCR C/C++ leaf dependencies (latest versions in BCR)
 bazel_dep(name = "pcre2", version = "10.49")

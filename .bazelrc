@@ -16,8 +16,8 @@ build --local_test_jobs=HOST_CPUS-2
 build --nobuild_runfile_links
 
 # Bazel RBE configuration profile targeting //bazel:ubuntu24_04_amd64
-build:rbe --host_platform=//bazel:ubuntu24_04_amd64
-build:rbe --extra_execution_platforms=//bazel:ubuntu24_04_amd64,@buildbuddy_toolchain//:platform_linux_x86_64
+#build:rbe --host_platform=//bazel:ubuntu24_04_amd64
+#build:rbe --extra_execution_platforms=//bazel:ubuntu24_04_amd64,@buildbuddy_toolchain//:platform_linux_x86_64
 build:rbe --spawn_strategy=remote
 build:rbe --remote_local_fallback=true
 build:rbe --remote_download_minimal
