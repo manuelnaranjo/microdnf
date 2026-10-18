@@ -27,6 +27,8 @@ PLUGINS = [
     "module_enable",
     "module_disable",
     "module_reset",
+    "rpm2archive",
+    "lock",
 ]
 
 [
@@ -40,6 +42,19 @@ PLUGINS = [
     for plugin in PLUGINS
 ]
 
+COMMON_COPTS = [
+    "--std=gnu11",
+    "-fstrict-aliasing",
+    "-Wformat=2",
+    "-Wunused",
+    "-Wuninitialized",
+    "-Wstrict-prototypes",
+    "-Wmissing-prototypes",
+    "-Werror=implicit",
+    "-Werror=init-self",
+    "-Werror=main",
+]
+
 cc_binary(
     name = "microdnf",
     srcs = [
@@ -48,6 +63,10 @@ cc_binary(
         "dnf-main.c",
         "dnf-utils.c",
         "dnf-utils.h",
+        "lock.c",
+        "lock.h",
+        "rpm2archive.c",
+        "rpm2archive.h",
     ] + [
         "plugins/{}/dnf-command-{}.c".format(plugin, plugin)
         for plugin in PLUGINS
@@ -58,18 +77,7 @@ cc_binary(
         ":gresource_" + plugin
         for plugin in PLUGINS
     ],
-    copts = [
-        "--std=gnu11",
-        "-fstrict-aliasing",
-        "-Wformat=2",
-        "-Wunused",
-        "-Wuninitialized",
-        "-Wstrict-prototypes",
-        "-Wmissing-prototypes",
-        "-Werror=implicit",
-        "-Werror=init-self",
-        "-Werror=main",
-    ],
+    copts = COMMON_COPTS,
     defines = [
         'PACKAGE_LIBDIR=\\"/usr/lib64/dnf\\"',
         'PACKAGE_DATADIR=\\"/usr/share/dnf\\"',
@@ -82,8 +90,12 @@ cc_binary(
         "@glib//:gio",
         "@glib//:glib",
         "@glib//:gobject",
+        "@json-c//:json-c",
+        "@libarchive//libarchive:archive",
         "@libdnf//:libdnf",
         "@libpeas//:libpeas",
+        "@rpm//:rpm",
+        "@rpm//:rpmio",
         "@smartcols//:smartcols",
     ],
 )
@@ -101,6 +113,85 @@ filegroup(
     name = "microdnf_all",
     srcs = [
         ":microdnf_" + platform
+        for platform in SUPPORTED_PLATFORMS
+    ],
+)
+
+cc_binary(
+    name = "rpm2archive",
+    srcs = [
+        "rpm2archive.c",
+        "rpm2archive.h",
+        "rpm2archive-main.c",
+    ],
+    copts = COMMON_COPTS,
+    includes = ["."],
+    deps = [
+        "@glib//:glib",
+        "@libarchive//libarchive:archive",
+        "@rpm//:rpm",
+        "@rpm//:rpmio",
+    ],
+)
+
+[
+    platform_transition_binary(
+        name = "rpm2archive_" + platform,
+        binary = ":rpm2archive",
+        target_platform = "//bazel:" + platform,
+    )
+    for platform in SUPPORTED_PLATFORMS
+]
+
+filegroup(
+    name = "rpm2archive_all",
+    srcs = [
+        ":rpm2archive_" + platform
+        for platform in SUPPORTED_PLATFORMS
+    ],
+)
+
+cc_binary(
+    name = "lock",
+    srcs = [
+        "dnf-utils.c",
+        "dnf-utils.h",
+        "lock.c",
+        "lock.h",
+        "lock-main.c",
+    ],
+    copts = COMMON_COPTS,
+    defines = [
+        'PACKAGE_LIBDIR=\\"/usr/lib64/dnf\\"',
+        'PACKAGE_DATADIR=\\"/usr/share/dnf\\"',
+        'BUILDDIR=\\"dnf\\"',
+        'SRCDIR=\\"dnf\\"',
+    ],
+    includes = ["."],
+    deps = [
+        "@glib//:gio",
+        "@glib//:glib",
+        "@glib//:gobject",
+        "@json-c//:json-c",
+        "@libdnf//:libdnf",
+        "@rpm//:rpm",
+        "@smartcols//:smartcols",
+    ],
+)
+
+[
+    platform_transition_binary(
+        name = "lock_" + platform,
+        binary = ":lock",
+        target_platform = "//bazel:" + platform,
+    )
+    for platform in SUPPORTED_PLATFORMS
+]
+
+filegroup(
+    name = "lock_all",
+    srcs = [
+        ":lock_" + platform
         for platform in SUPPORTED_PLATFORMS
     ],
 )
