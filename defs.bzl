@@ -6,11 +6,13 @@ load(
     _RpmExtractedFilesInfo = "RpmExtractedFilesInfo",
     _RpmInfo = "RpmInfo",
     _RpmLockFileInfo = "RpmLockFileInfo",
+    _rpm_archive = "rpm_archive",
     _rpm_lock = "rpm_lock",
     _rpm_package = "rpm_package",
     _rpm_repository = "rpm_repository",
 )
 
+rpm_archive = _rpm_archive
 rpm_lock = _rpm_lock
 rpm_package = _rpm_package
 rpm_repository = _rpm_repository
