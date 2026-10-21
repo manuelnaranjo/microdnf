@@ -4,6 +4,7 @@ exports_files([
     "archive.bzl",
     "defs.bzl",
     "extensions.bzl",
+    "extract.bzl",
     "lock.bzl",
     "package.bzl",
     "providers.bzl",
