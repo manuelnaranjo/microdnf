@@ -1,5 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["defs.bzl"])
+
 SUPPORTED_PLATFORMS = [
     "linux_amd64",
     "linux_arm64",
@@ -37,3 +39,22 @@ TARGETS = [
     )
     for target in TARGETS
 ]
+
+genrule(
+    name = "tools_archive",
+    srcs = [
+        "//:lock",
+        "//:rpm2archive",
+        "//:microdnf",
+    ],
+    outs = ["microdnf_tools.tar.gz"],
+    cmd = """
+        TMP=$$(mktemp -d)
+        cp $(location //:lock) $$TMP/lock
+        cp $(location //:rpm2archive) $$TMP/rpm2archive
+        cp $(location //:microdnf) $$TMP/microdnf
+        chmod 0755 $$TMP/lock $$TMP/rpm2archive $$TMP/microdnf
+        tar -czf $@ -C $$TMP lock rpm2archive microdnf
+        rm -rf $$TMP
+    """,
+)
