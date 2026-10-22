@@ -56,7 +56,7 @@ def _rpm_repository_impl(repo_ctx):
         if not lf_arch:
             lf_arch = "noarch"
 
-        norm_arch = _normalize_arch(lf_arch)
+        norm_arch = _normalize_arch(lf_arch.split(",")[0].strip())
 
         req_list = data.get("requested", [])
         if not req_list:
@@ -82,6 +82,15 @@ def _rpm_repository_impl(repo_ctx):
 
                 integrity = p.get("integrity", "")
                 sha256 = p.get("checksum", "")
+
+                if url.startswith("file://"):
+                    local_path = url[7:]
+                    if not repo_ctx.path(local_path).exists:
+                        # Fallback: look near lockfile or in repo
+                        fname = local_path.split("/")[-1]
+                        candidate = "%s/%s" % (lf.dirname, fname)
+                        if repo_ctx.path(candidate).exists:
+                            url = "file://" + str(repo_ctx.path(candidate))
 
                 download_kwargs = {
                     "url": url,

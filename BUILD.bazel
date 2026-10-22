@@ -1,9 +1,22 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
+    "MODULE.bazel",
     "defs.bzl",
     "extensions.bzl",
 ])
+
+filegroup(
+    name = "microdnf_module_files",
+    srcs = [
+        "BUILD.bazel",
+        "MODULE.bazel",
+        "defs.bzl",
+        "extensions.bzl",
+        "//rpm:all_files",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 SUPPORTED_PLATFORMS = [
     "linux_amd64",

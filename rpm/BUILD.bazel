@@ -7,6 +7,12 @@ exports_files([
     "extract.bzl",
     "lock.bzl",
     "package.bzl",
+    "prebuilt.bzl",
     "providers.bzl",
     "repository.bzl",
 ])
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["*"]),
+)

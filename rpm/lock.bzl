@@ -12,6 +12,17 @@ def _rpm_lock_impl(ctx):
 
     repo_conf = ctx.file.repo_config
     lock_tool = ctx.executable.lock_tool
+    repo_files = ctx.files.repo_files
+
+    # Determine relative repo directory by finding the parent of repodata
+    repo_rel_dir = ""
+    for f in repo_files:
+        if "/repodata/" in f.path or f.path.endswith("/repodata"):
+            parts = f.path.split("/repodata")
+            repo_rel_dir = parts[0]
+            break
+    if not repo_rel_dir and repo_files:
+        repo_rel_dir = repo_files[0].dirname
 
     # Script for hermetic bazel build
     build_content = """#!/usr/bin/env bash
@@ -22,7 +33,12 @@ trap 'rm -rf "${TMP_DIR}"' EXIT
 
 REPOS_DIR="${TMP_DIR}/repos.d"
 mkdir -p "${REPOS_DIR}"
-cp "%s" "${REPOS_DIR}/repo.repo"
+
+if grep -q '@REPO_DIR@' "%s"; then
+  sed "s|@REPO_DIR@|${PWD}/%s|g" "%s" > "${REPOS_DIR}/repo.repo"
+else
+  cp "%s" "${REPOS_DIR}/repo.repo"
+fi
 
 CACHE_DIR="${TMP_DIR}/cache"
 mkdir -p "${CACHE_DIR}"
@@ -31,7 +47,7 @@ mkdir -p "${CACHE_DIR}"
   --reposdir="${REPOS_DIR}" \
   --setopt=cachedir="${CACHE_DIR}" \
   "$@"
-""" % (repo_conf.path, lock_tool.path)
+""" % (repo_conf.path, repo_rel_dir, repo_conf.path, repo_conf.path, lock_tool.path)
 
     ctx.actions.write(
         output = build_script,
@@ -49,7 +65,7 @@ mkdir -p "${CACHE_DIR}"
         args.add(pkg)
 
     ctx.actions.run(
-        inputs = [repo_conf],
+        inputs = [repo_conf] + repo_files,
         outputs = [out],
         executable = build_script,
         arguments = [args],
@@ -133,6 +149,11 @@ rpm_lock = rule(
             allow_single_file = [".repo"],
             doc = "Mandatory Yum repository configuration file (.repo).",
         ),
+        "repo_files": attr.label_list(
+            default = [],
+            allow_files = True,
+            doc = "Optional files inside local repositories (repodata, RPMs).",
+        ),
         "arch": attr.string(
             mandatory = True,
             doc = "Mandatory target architecture (e.g. x86_64, aarch64).",
@@ -151,6 +172,7 @@ rpm_lock = rule(
         "lock_tool": attr.label(
             default = Label("//:lock"),
             executable = True,
+            allow_single_file = True,
             cfg = "exec",
             doc = "Lock tool binary.",
         ),

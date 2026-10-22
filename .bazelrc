@@ -2,6 +2,9 @@
 common --registry=file://%workspace%/bazel/3rdparty
 common --registry=https://bcr.bazel.build
 
+# Common settings
+common --deleted_packages=e2e/smoke_test
+
 # Bzlmod settings
 common --enable_bzlmod
 common --lockfile_mode=update
@@ -28,6 +31,8 @@ build:rbe --remote_cache_compression
 build:rbe --noslim_profile
 build:rbe --experimental_profile_include_target_label
 build:rbe --experimental_profile_include_primary_output
+test:rbe --remote_default_exec_properties=dockerNetwork=bridge
+test:rbe --remote_default_exec_properties=network=bridge
 
 # Target platform configurations via @platforms_contrib
 build:linux_amd64 --platforms=//bazel:linux_amd64
@@ -38,6 +43,7 @@ build:osx_arm64 --platforms=//bazel:osx_arm64
 # Test output settings
 test --test_summary=terse
 test --test_output=errors
+test --sandbox_default_allow_network=true
 
 # Import user-specific configuration (must be last)
 try-import %workspace%/.bazelrc.user

@@ -80,6 +80,7 @@ rpm_archive = rule(
         "rpm2archive_tool": attr.label(
             default = Label("//:rpm2archive"),
             executable = True,
+            allow_single_file = True,
             cfg = "exec",
             doc = "rpm2archive binary tool.",
         ),
