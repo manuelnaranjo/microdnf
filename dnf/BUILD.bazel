@@ -63,10 +63,10 @@ cc_binary(
         "dnf-main.c",
         "dnf-utils.c",
         "dnf-utils.h",
-        "lock.c",
-        "lock.h",
-        "rpm2archive.c",
-        "rpm2archive.h",
+        "plugins/lock/lock.c",
+        "plugins/lock/lock.h",
+        "plugins/rpm2archive/rpm2archive.c",
+        "plugins/rpm2archive/rpm2archive.h",
     ] + [
         "plugins/{}/dnf-command-{}.c".format(plugin, plugin)
         for plugin in PLUGINS
@@ -120,9 +120,9 @@ filegroup(
 cc_binary(
     name = "rpm2archive",
     srcs = [
-        "rpm2archive.c",
-        "rpm2archive.h",
-        "rpm2archive-main.c",
+        "plugins/rpm2archive/rpm2archive.c",
+        "plugins/rpm2archive/rpm2archive.h",
+        "plugins/rpm2archive/rpm2archive-main.c",
     ],
     copts = COMMON_COPTS,
     includes = ["."],
@@ -156,9 +156,9 @@ cc_binary(
     srcs = [
         "dnf-utils.c",
         "dnf-utils.h",
-        "lock.c",
-        "lock.h",
-        "lock-main.c",
+        "plugins/lock/lock.c",
+        "plugins/lock/lock.h",
+        "plugins/lock/lock-main.c",
     ],
     copts = COMMON_COPTS,
     defines = [

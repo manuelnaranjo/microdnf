@@ -22,9 +22,7 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <glib.h>
-#include <rpm/rpmlib.h>
 #include <libpeas/peas.h>
 #include <libdnf/libdnf.h>
 #include "dnf-command.h"
@@ -272,51 +270,13 @@ static const GOptionEntry global_opts[] = {
 static DnfContext *
 context_new (void)
 {
-  if (access ("/usr/lib/rpm/rpmrc", R_OK) != 0 && !getenv ("RPM_CONFIGDIR"))
-    {
-      const char *tmp = g_get_tmp_dir ();
-      g_autofree char *dir = g_build_filename (tmp, "microdnf_rpm_cfg", NULL);
-      g_mkdir_with_parents (dir, 0755);
-      g_autofree char *rcfile = g_build_filename (dir, "rpmrc", NULL);
-      if (access (rcfile, F_OK) != 0)
-        g_file_set_contents (rcfile, "", 0, NULL);
-      g_autofree char *macfile = g_build_filename (dir, "macros", NULL);
-      if (access (macfile, F_OK) != 0)
-        g_file_set_contents (macfile, "", 0, NULL);
-      setenv ("RPM_CONFIGDIR", dir, 1);
-    }
-
   DnfContext *ctx = dnf_context_new ();
 
-  if (geteuid () != 0)
-    {
-      const char *user_cache = g_get_user_cache_dir ();
-      g_autofree gchar *metadatadir = g_build_filename (user_cache, "microdnf", "metadata", NULL);
-      g_autofree gchar *solvdir = g_build_filename (user_cache, "microdnf", "solv", NULL);
-      g_autofree gchar *lockdir = g_build_filename (user_cache, "microdnf", "lock", NULL);
-      dnf_context_set_cache_dir (ctx, metadatadir);
-      dnf_context_set_solv_dir (ctx, solvdir);
-      dnf_context_set_lock_dir (ctx, lockdir);
-    }
-  else
-    {
 #define CACHEDIR "/var/cache/yum"
-      dnf_context_set_cache_dir (ctx, CACHEDIR"/metadata");
-      dnf_context_set_solv_dir (ctx, CACHEDIR"/solv");
-      dnf_context_set_lock_dir (ctx, CACHEDIR"/lock");
+  dnf_context_set_cache_dir (ctx, CACHEDIR"/metadata");
+  dnf_context_set_solv_dir (ctx, CACHEDIR"/solv");
+  dnf_context_set_lock_dir (ctx, CACHEDIR"/lock");
 #undef CACHEDIR
-    }
-
-  /* Fallback repos directory for non-root systems where /etc/yum.repos.d is missing */
-  if (access ("/etc/yum.repos.d", F_OK) != 0)
-    {
-      const char *tmp = g_get_tmp_dir ();
-      g_autofree char *repos_dir = g_build_filename (tmp, "microdnf_rpm_cfg", "repos.d", NULL);
-      g_mkdir_with_parents (repos_dir, 0755);
-      const gchar *dirs[] = { repos_dir, NULL };
-      dnf_context_set_repos_dir (ctx, dirs);
-    }
-
   dnf_context_set_check_disk_space (ctx, FALSE);
   dnf_context_set_check_transaction (ctx, TRUE);
 
