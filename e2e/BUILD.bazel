@@ -36,6 +36,71 @@ rpm_extract(
     ],
 )
 
+# Incremental lockfile tests
+rpm_lock(
+    name = "layer2_already_installed_lock",
+    arch = "x86_64,noarch",
+    lock_files = [":test_generated_lock.lock.json"],
+    out = "layer2_already_installed.lock.json",
+    packages = ["tour"],
+    releasever = "9",
+    repo_config = "//e2e/testdata:test.repo",
+    repo_files = ["//e2e/testdata:test_repo_files"],
+)
+
+rpm_lock(
+    name = "layer2_incremental_lock",
+    arch = "x86_64,noarch",
+    lock_files = [":test_generated_lock.lock.json"],
+    out = "layer2_incremental.lock.json",
+    packages = ["mystery-devel"],
+    releasever = "9",
+    repo_config = "//e2e/testdata:test.repo",
+    repo_files = ["//e2e/testdata:test_repo_files"],
+)
+
+rpm_lock(
+    name = "layer2_both_lock",
+    arch = "x86_64,noarch",
+    lock_files = [":test_generated_lock.lock.json"],
+    out = "layer2_both.lock.json",
+    packages = [
+        "mystery-devel",
+        "tour",
+    ],
+    releasever = "9",
+    repo_config = "//e2e/testdata:test.repo",
+    repo_files = ["//e2e/testdata:test_repo_files"],
+)
+
+rpm_lock(
+    name = "changed_integrity_lock",
+    arch = "x86_64,noarch",
+    lock_files = ["//e2e/testdata:changed_integrity.lock.json"],
+    out = "changed_integrity.lock.json",
+    packages = ["tour"],
+    releasever = "9",
+    repo_config = "//e2e/testdata:test.repo",
+    repo_files = ["//e2e/testdata:test_repo_files"],
+)
+
+sh_test(
+    name = "incremental_lock_test",
+    srcs = ["test_incremental_lock.sh"],
+    args = [
+        "$(location :layer2_already_installed.lock.json)",
+        "$(location :layer2_incremental.lock.json)",
+        "$(location :layer2_both.lock.json)",
+        "$(location :changed_integrity.lock.json)",
+    ],
+    data = [
+        ":changed_integrity.lock.json",
+        ":layer2_already_installed.lock.json",
+        ":layer2_both.lock.json",
+        ":layer2_incremental.lock.json",
+    ],
+)
+
 # Verification test for Step 1, Step 3, Step 4
 sh_test(
     name = "e2e_components_test",

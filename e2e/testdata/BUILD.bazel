@@ -2,6 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files([
     "aarch64.lock.json",
+    "changed_integrity.lock.json",
     "test.repo",
     "x86_64.lock.json",
 ])

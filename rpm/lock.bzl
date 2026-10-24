@@ -59,13 +59,15 @@ mkdir -p "${CACHE_DIR}"
     args.add("--releasever", ctx.attr.releasever)
     args.add("--archlist", ctx.attr.arch)
     args.add("--output", out)
+    for lf in ctx.files.lock_files:
+        args.add("--lockfile", lf)
     for ex in ctx.attr.exclude:
         args.add("--exclude", ex)
     for pkg in ctx.attr.packages:
         args.add(pkg)
 
     ctx.actions.run(
-        inputs = [repo_conf] + repo_files,
+        inputs = [repo_conf] + repo_files + ctx.files.lock_files,
         outputs = [out],
         executable = build_script,
         arguments = [args],
@@ -77,6 +79,7 @@ mkdir -p "${CACHE_DIR}"
     # Runner script for `bazel run`
     dest_path = ctx.outputs.out.short_path if ctx.outputs.out else ctx.label.name + ".lock.json"
     exclude_args = " ".join(['--exclude="%s"' % x for x in ctx.attr.exclude])
+    lockfile_args = " ".join(['--lockfile="%s"' % lf.short_path for lf in ctx.files.lock_files])
     pkg_args = " ".join(['"%s"' % p for p in ctx.attr.packages])
 
     run_content = """#!/usr/bin/env bash
@@ -99,6 +102,7 @@ mkdir -p "${CACHE_DIR}"
   --releasever="%s" \
   --archlist="%s" \
   %s \
+  %s \
   --output="${DEST}" \
   %s
 
@@ -110,6 +114,7 @@ echo "Wrote lockfile to ${DEST}"
         ctx.attr.releasever,
         ctx.attr.arch,
         exclude_args,
+        lockfile_args,
         pkg_args,
     )
 
@@ -119,7 +124,7 @@ echo "Wrote lockfile to ${DEST}"
         is_executable = True,
     )
 
-    runfiles = ctx.runfiles(files = [repo_conf, lock_tool])
+    runfiles = ctx.runfiles(files = [repo_conf, lock_tool] + ctx.files.lock_files)
 
     return [
         DefaultInfo(
@@ -165,6 +170,11 @@ rpm_lock = rule(
         "exclude": attr.string_list(
             default = [],
             doc = "List of packages to exclude and trim along with unneeded dependencies unless directly requested.",
+        ),
+        "lock_files": attr.label_list(
+            default = [],
+            allow_files = [".json"],
+            doc = "Ordered list of lock files from previous layers.",
         ),
         "out": attr.output(
             doc = "Optional explicit output lockfile path. Defaults to {name}.lock.json.",
