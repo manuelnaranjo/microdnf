@@ -2,3 +2,4 @@
 /.bazelrc.user
 /.untether-outbox/
 /pending/
+/AGENTS.local.md
