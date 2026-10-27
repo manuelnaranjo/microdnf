@@ -1,0 +1,9 @@
+[Plugin]
+Module = command_mark
+Embedded = dnf_command_mark_register_types
+Name = mark
+Description = Mark packages as installed in rpmdb
+Authors = Antigravity
+License = GPL-2.0+
+Copyright = Copyright © 2026 Red Hat, Inc. and contributors
+X-Command-Syntax = mark [OPTION…] PACKAGE [PACKAGE…]

@@ -9,6 +9,7 @@ load(
     _rpm_archive = "rpm_archive",
     _rpm_extract = "rpm_extract",
     _rpm_lock = "rpm_lock",
+    _rpm_mark = "rpm_mark",
     _rpm_package = "rpm_package",
     _rpm_repository = "rpm_repository",
 )
@@ -16,6 +17,7 @@ load(
 rpm_archive = _rpm_archive
 rpm_extract = _rpm_extract
 rpm_lock = _rpm_lock
+rpm_mark = _rpm_mark
 rpm_package = _rpm_package
 rpm_repository = _rpm_repository
 RpmLockFileInfo = _RpmLockFileInfo

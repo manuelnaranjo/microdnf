@@ -5,9 +5,15 @@ exports_files([
     "changed_integrity.lock.json",
     "test.repo",
     "x86_64.lock.json",
+    "ol9_repo/ol9.repo",
 ])
 
 filegroup(
     name = "test_repo_files",
     srcs = glob(["repo/**"]),
+)
+
+filegroup(
+    name = "ol9_repo_files",
+    srcs = glob(["ol9_repo/**"]),
 )

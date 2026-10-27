@@ -1,6 +1,6 @@
 load("@rules_bazel_integration_test//bazel_integration_test:defs.bzl", "bazel_integration_tests", "default_test_runner", "integration_test_utils")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
-load("//rpm:defs.bzl", "rpm_archive", "rpm_extract", "rpm_lock")
+load("//rpm:defs.bzl", "rpm_archive", "rpm_extract", "rpm_lock", "rpm_mark", "rpm_package")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -116,6 +116,61 @@ sh_test(
         ":test_generated_lock.lock.json",
         ":tour_archive",
         "//e2e/testdata:test_repo_files",
+    ],
+)
+
+# Oracle Linux 9 curl test: add curl binary from OL9 and mark it as installed into rpmdb
+rpm_package(
+    name = "ol9_curl_package",
+    arch = "x86_64",
+    package_name = "curl",
+    rpm_file = "//e2e/testdata:ol9_repo/curl-7.76.1-40.el9_8.8.x86_64.rpm",
+    version = "7.76.1-40.el9_8.8",
+)
+
+rpm_archive(
+    name = "ol9_curl_archive",
+    compression = "gzip",
+    rpms = [":ol9_curl_package"],
+)
+
+rpm_extract(
+    name = "extracted_ol9_curl",
+    archive = ":ol9_curl_archive",
+    executables = [
+        "usr/bin/curl",
+    ],
+    files = [
+        "usr/bin/curl",
+    ],
+)
+
+rpm_mark(
+    name = "ol9_marked_rpmdb",
+    arch = "x86_64",
+    packages = ["curl=7.76.1-40.el9_8.8"],
+    releasever = "9",
+    repo_config = "//e2e/testdata:ol9_repo/ol9.repo",
+    repo_files = ["//e2e/testdata:ol9_repo_files"],
+)
+
+sh_test(
+    name = "oracle_linux_curl_mark_test",
+    srcs = ["test_ol9_curl_mark.sh"],
+    args = [
+        "$(location :extracted_ol9_curl_curl)",
+        "$(location :ol9_marked_rpmdb)",
+        "$(location //dnf:mark)",
+        "$(location //e2e/testdata:ol9_repo/ol9.repo)",
+        "e2e/testdata/ol9_repo",
+    ],
+    data = [
+        ":extracted_ol9_curl",
+        ":extracted_ol9_curl_curl",
+        ":ol9_marked_rpmdb",
+        "//dnf:mark",
+        "//e2e/testdata:ol9_repo/ol9.repo",
+        "//e2e/testdata:ol9_repo_files",
     ],
 )
 

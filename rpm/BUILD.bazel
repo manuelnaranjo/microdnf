@@ -6,6 +6,7 @@ exports_files([
     "extensions.bzl",
     "extract.bzl",
     "lock.bzl",
+    "mark.bzl",
     "package.bzl",
     "prebuilt.bzl",
     "providers.bzl",

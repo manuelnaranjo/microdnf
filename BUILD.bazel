@@ -31,6 +31,7 @@ TARGETS = [
     "microdnf",
     "rpm2archive",
     "lock",
+    "mark",
 ]
 
 [
@@ -62,6 +63,7 @@ tar(
     name = "tools_archive",
     srcs = [
         "//:lock",
+        "//:mark",
         "//:rpm2archive",
         "//:microdnf",
     ],
@@ -71,4 +73,9 @@ tar(
     mutate = mutate(
         strip_prefix = "dnf",
     ),
+)
+
+alias(
+    name = "rpmdb-mark",
+    actual = "//dnf:mark",
 )

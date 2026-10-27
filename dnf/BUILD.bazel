@@ -29,6 +29,7 @@ PLUGINS = [
     "module_reset",
     "rpm2archive",
     "lock",
+    "mark",
 ]
 
 [
@@ -65,6 +66,8 @@ cc_binary(
         "dnf-utils.h",
         "plugins/lock/lock.c",
         "plugins/lock/lock.h",
+        "plugins/mark/mark.c",
+        "plugins/mark/mark.h",
         "plugins/rpm2archive/rpm2archive.c",
         "plugins/rpm2archive/rpm2archive.h",
     ] + [
@@ -196,4 +199,56 @@ filegroup(
         ":lock_" + platform
         for platform in SUPPORTED_PLATFORMS
     ],
+)
+
+cc_binary(
+    name = "mark",
+    srcs = [
+        "dnf-utils.c",
+        "dnf-utils.h",
+        "plugins/mark/mark.c",
+        "plugins/mark/mark.h",
+        "plugins/mark/mark-main.c",
+    ],
+    copts = COMMON_COPTS,
+    defines = [
+        'PACKAGE_LIBDIR=\\"/usr/lib64/dnf\\"',
+        'PACKAGE_DATADIR=\\"/usr/share/dnf\\"',
+        'BUILDDIR=\\"dnf\\"',
+        'SRCDIR=\\"dnf\\"',
+    ],
+    includes = ["."],
+    deps = [
+        "@glib//:gio",
+        "@glib//:glib",
+        "@glib//:gobject",
+        "@json-c//:json-c",
+        "@libdnf//:libdnf",
+        "@libsolv//:libsolv",
+        "@rpm//:rpm",
+        "@rpm//:rpmio",
+        "@smartcols//:smartcols",
+    ],
+)
+
+[
+    platform_transition_binary(
+        name = "mark_" + platform,
+        binary = ":mark",
+        target_platform = "//bazel:" + platform,
+    )
+    for platform in SUPPORTED_PLATFORMS
+]
+
+filegroup(
+    name = "mark_all",
+    srcs = [
+        ":mark_" + platform
+        for platform in SUPPORTED_PLATFORMS
+    ],
+)
+
+alias(
+    name = "rpmdb-mark",
+    actual = ":mark",
 )
